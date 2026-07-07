@@ -13,6 +13,27 @@ import android.webkit.WebViewClient;
 public class MainActivity extends Activity {
     private WebView webView;
 
+    private static final String COMPACT_CSS =
+            "#topbar{height:40px!important;}" +
+            ".tcell{padding:0 10px!important;gap:6px!important;font-size:11px!important;}" +
+            ".tcell .lb{font-size:9px!important;letter-spacing:.18em!important;}" +
+            ".tcell b{font-size:13px!important;}" +
+            ".mini{width:90px!important;height:7px!important;}" +
+            "#btn-wave{margin:4px!important;padding:0 16px!important;height:30px!important;font-size:11px!important;}" +
+            ".icobtn{width:30px!important;height:30px!important;margin:4px 2px!important;font-size:12px!important;}" +
+            "#shop{left:6px!important;bottom:6px!important;gap:5px!important;padding:6px!important;max-width:calc(100vw - 250px)!important;}" +
+            "#shop .card{width:64px!important;min-width:64px!important;height:auto!important;padding:5px 4px 4px!important;gap:2px!important;}" +
+            "#shop .card img{width:40px!important;height:40px!important;}" +
+            "#shop .card .nm{font-size:7.5px!important;height:18px!important;}" +
+            "#shop .card .cost{font-size:10px!important;}" +
+            "#shop .card .pw,#shop .card .hk,#shop .card .lk{font-size:8px!important;}" +
+            "#abilities{right:6px!important;bottom:6px!important;gap:6px!important;padding:6px!important;}" +
+            "#abilities .ab{width:48px!important;height:48px!important;}" +
+            "#abilities .ab .ic{font-size:18px!important;}" +
+            "#abilities .ab .nm{font-size:7px!important;}" +
+            "#panel{width:220px!important;top:48px!important;}" +
+            "#hint{bottom:88px!important;}";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +60,21 @@ public class MainActivity extends Activity {
         settings.setUseWideViewPort(true);
         settings.setCacheMode(WebSettings.LOAD_DEFAULT);
 
-        webView.setWebViewClient(new WebViewClient());
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                String escapedCss = COMPACT_CSS
+                        .replace("\\", "\\\\")
+                        .replace("'", "\\'")
+                        .replace("\n", "\\n");
+                view.evaluateJavascript(
+                        "(function(){var s=document.getElementById('android-compact-ui');" +
+                        "if(!s){s=document.createElement('style');s.id='android-compact-ui';document.head.appendChild(s);}" +
+                        "s.textContent='" + escapedCss + "';})();",
+                        null);
+            }
+        });
         webView.setWebChromeClient(new WebChromeClient());
         webView.loadUrl("file:///android_asset/index.html");
         enterImmersiveMode();
